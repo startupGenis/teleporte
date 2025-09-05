@@ -1,9 +1,3 @@
-# render.yaml
-# Deploy automático do TelePorte no Render
-# Contém:
-# - PocketBase (banco de dados + auth)
-# - Flask (admin + API de mapas)
-
 services:
   # === 1. PocketBase: Banco de Dados + Auth ===
   - type: web
