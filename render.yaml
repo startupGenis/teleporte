@@ -1,5 +1,4 @@
 services:
-  # === 1. PocketBase: Banco de Dados + Auth ===
   - type: web
     name: teleporte-pb
     plan: free
