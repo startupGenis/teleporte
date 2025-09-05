@@ -1,0 +1,19 @@
+{
+  "id": "provas",
+  "name": "provas",
+  "type": "base",
+  "schema": [
+    { "name": "tarefa_id", "type": "relation", "collectionId": "tarefas", "cascadeDelete": false },
+    { "name": "foto_url", "type": "file", "options": { "maxSelect": 1, "maxSize": 5242880 } },
+    { "name": "geotag_lat", "type": "number" },
+    { "name": "geotag_lng", "type": "number" },
+    { "name": "timestamp_foto", "type": "date" },
+    { "name": "status", "type": "text", "options": { "max": 20 } }
+  ],
+  "listRule": "@request.auth.id = prestador_id",
+  "viewRule": "@request.auth.id = prestador_id",
+  "createRule": "@request.auth.id = prestador_id",
+  "updateRule": "@request.auth.id = prestador_id",
+  "deleteRule": "false",
+  "options": {}
+}

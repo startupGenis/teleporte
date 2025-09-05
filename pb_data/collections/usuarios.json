@@ -1,0 +1,95 @@
+{
+  "id": "usuarios",
+  "name": "usuarios",
+  "type": "auth",
+  "schema": [
+    {
+      "name": "nome",
+      "type": "text",
+      "required": true,
+      "unique": false
+    },
+    {
+      "name": "tipo",
+      "type": "text",
+      "required": true,
+      "options": {
+        "max": 50
+      }
+    },
+    {
+      "name": "cep",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "telefone",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "cidade",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "estado",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "maior_18",
+      "type": "bool",
+      "required": true
+    },
+    {
+      "name": "foto_perfil",
+      "type": "file",
+      "required": false,
+      "options": {
+        "maxSelect": 1,
+        "maxSize": 51200,
+        "mimeTypes": ["image/jpeg", "image/png"],
+        "protected": false
+      }
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "required": false,
+      "options": {
+        "max": 20
+      }
+    },
+    {
+      "name": "confianca",
+      "type": "number",
+      "required": false,
+      "options": {
+        "min": 0,
+        "max": 5
+      }
+    }
+  ],
+  "listRule": "@request.auth.id != ''",
+  "viewRule": "@request.auth.id != ''",
+  "createRule": "true",
+  "updateRule": "@request.auth.id = id",
+  "deleteRule": "false",
+  "options": {
+    "allowEmailAuth": true,
+    "allowOAuth2Auth": false,
+    "allowUsernameAuth": false,
+    "allowEmailChange": true,
+    "enableVerification": false,
+    "allowAdminAccountTransfer": true,
+    "passwordPolicy": {
+      "maxLength": 72,
+      "minLength": 8,
+      "requireDigit": false,
+      "requireLower": false,
+      "requireSpecial": false,
+      "requireUpper": false
+    }
+  }
+}

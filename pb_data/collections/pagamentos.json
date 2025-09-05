@@ -1,0 +1,18 @@
+{
+  "id": "pagamentos",
+  "name": "pagamentos",
+  "type": "base",
+  "schema": [
+    { "name": "tarefa_id", "type": "relation", "collectionId": "tarefas", "cascadeDelete": false },
+    { "name": "valor", "type": "number", "required": true },
+    { "name": "chave_pix", "type": "text", "required": true },
+    { "name": "comprovante_url", "type": "file", "options": { "maxSelect": 1 } },
+    { "name": "status", "type": "text", "options": { "max": 20 } }
+  ],
+  "listRule": "true",
+  "viewRule": "true",
+  "createRule": "@request.auth.id != ''",
+  "updateRule": "true",
+  "deleteRule": "false",
+  "options": {}
+}

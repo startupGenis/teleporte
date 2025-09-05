@@ -1,4 +1,5 @@
 services:
+  # === 1. PocketBase: Banco de Dados + Auth ===
   - type: web
     name: teleporte-pb
     plan: free
@@ -10,6 +11,7 @@ services:
     envVars:
       - key: PORT
         value: ${PORT}
+    # Disco persistente para salvar coleções, arquivos e backups
     disk:
       name: pb_data
       mountPath: /pb_data

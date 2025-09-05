@@ -1,0 +1,25 @@
+{
+  "id": "tarefas",
+  "name": "tarefas",
+  "type": "base",
+  "schema": [
+    { "name": "titulo", "type": "text", "required": true },
+    { "name": "descricao", "type": "text" },
+    { "name": "endereco", "type": "text", "required": true },
+    { "name": "lat", "type": "number", "required": true },
+    { "name": "lng", "type": "number", "required": true },
+    { "name": "raio", "type": "number", "required": true },
+    { "name": "preco", "type": "number", "required": true },
+    { "name": "prazo", "type": "date", "required": true },
+    { "name": "status", "type": "text", "options": { "max": 30 } },
+    { "name": "contratante_id", "type": "relation", "collectionId": "usuarios", "cascadeDelete": false },
+    { "name": "prestador_id", "type": "relation", "collectionId": "usuarios", "cascadeDelete": false },
+    { "name": "mapa_url", "type": "text" }
+  ],
+  "listRule": "status = 'aberta'",
+  "viewRule": "true",
+  "createRule": "@request.auth.tipo = 'contratante'",
+  "updateRule": "@request.auth.id = contratante_id",
+  "deleteRule": "false",
+  "options": {}
+}
