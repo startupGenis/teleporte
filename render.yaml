@@ -1,5 +1,5 @@
 services:
-  # === 1. PocketBase: Banco de Dados + Auth ===
+  # === 1. PocketBase ===
   - type: web
     name: teleporte-pb
     plan: free
@@ -11,13 +11,10 @@ services:
     envVars:
       - key: PORT
         value: ${PORT}
-    # Disco persistente para salvar coleções, arquivos e backups
     disk:
       name: pb_data
       mountPath: /pb_data
-    # Health check
     healthCheckPath: /api/health
-
   # === 2. Flask: Admin + API de Mapas ===
   - type: web
     name: teleporte-backend
@@ -25,9 +22,8 @@ services:
     runtime: python
     region: oregon
     env: production
-    # Instala dependências do requirements.txt
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app  # melhor que python app.py no Render
     envVars:
       - key: PORT
         value: ${PORT}
@@ -37,5 +33,4 @@ services:
         fromSecret: ADMIN_PASSWORD_HASH
       - key: POCKETBASE_URL
         value: https://teleporte-pb.onrender.com
-    # Health check
     healthCheckPath: /
