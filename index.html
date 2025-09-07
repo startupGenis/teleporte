@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TelePorte — Seus olhos em qualquer lugar</title>
+  <meta name="description" content="TelePorte conecta contratantes e prestadores próximos para tarefas com comprovação geolocalizada no mesmo dia. Ideal para investidores anjo." />
+
+  <style>
+    :root{
+      --bg: #ffffff;
+      --text: #0b0b0b;
+      --accent: #0B6E4F;
+      --muted: #666;
+      --maxw: 1024px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .hero-image{
+      width:100%;
+      height: clamp(240px, 36vw, 420px);
+      object-fit: cover;
+      display:block;
+    }
+
+    .container{
+      max-width: var(--maxw);
+      margin: -60px auto 80px;
+      background: #fff;
+      box-shadow: 0 8px 30px rgba(6,12,20,0.08);
+      border-radius: 12px;
+      padding: 48px;
+    }
+
+    .title{
+      font-size: clamp(28px, 4.6vw, 44px);
+      line-height:1.1;
+      font-weight:800;
+      margin:0 0 12px 0;
+      color:var(--text);
+    }
+
+    .subtitle{
+      font-size: clamp(16px, 2.4vw, 18px);
+      color:var(--muted);
+      margin:0 0 24px 0;
+    }
+
+    .contact{
+      display:flex;
+      flex-wrap:wrap;
+      gap:16px;
+      align-items:center;
+      margin: 18px 0 32px 0;
+    }
+
+    .contact a{
+      font-weight:700;
+      font-size:18px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .cta{
+      display:inline-block;
+      background:var(--accent);
+      color:white;
+      padding:12px 20px;
+      border-radius:8px;
+      font-weight:700;
+      text-decoration:none;
+      margin-left:8px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:24px;
+      margin-top:8px;
+    }
+
+    @media(min-width:880px){
+      .grid{
+        grid-template-columns: 1fr 360px;
+      }
+    }
+
+    .card{
+      background:transparent;
+      padding:18px;
+      border-radius:10px;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    ul.advantages{
+      margin:0;
+      padding-left:20px;
+      color:var(--text);
+      font-weight:600;
+      line-height:1.6;
+      font-size:16px;
+    }
+
+    .pitch{
+      font-size:16px;
+      line-height:1.6;
+      color:var(--text);
+    }
+
+    footer{
+      max-width:var(--maxw);
+      margin: 40px auto;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+      padding:8px;
+    }
+
+    .small{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .english{
+      margin-top:24px;
+      font-style:italic;
+      color: #333;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Imagem local topo.jpg -->
+  <img class="hero-image" src="topo.png" alt="TelePorte - Seus olhos em qualquer lugar">
+
+  <main class="container" role="main" aria-labelledby="main-title">
+    <h1 id="main-title" class="title"><center><br>TelePorte</h1></center><h2>— Contratante: Seus olhos em qualquer lugar, em tempo real, em qualquer distância!<br>— Contratado: Seja freelancer e receba todo dia por realizar pequenas tarefas como tirar uma foto!</h2>
+    <p class="subtitle">Plataforma que conecta contratantes e prestadores locais no mesmo dia. Tarefas podem ser executadas e comprovadas com fotos geotag, horários e pontos de venda, garantindo confiança mesmo à distância.</p>
+
+    <div class="contact">
+      <a href="mailto:g23info@gmail.com?subject=Startup">📧 g23info@gmail.com</a>
+      <div class="small">Contato direto: +55 53 98479-7344 — Genis (Autor)</div>
+      <a class="cta" href="mailto:g23info@gmail.com?subject=Startup">Falar com o autor</a>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 style="margin-top:0;">Pitch rápido (Português)</h2>
+        <p class="pitch">
+          TelePorte permite que usuários publiquem tarefas locais — como registrar pontos de venda, tirar fotos de produtos, comprar itens específicos ou gerar provas de presença — em um mapa com marcador e círculo de abrangência. Prestadores próximos aceitam a tarefa e comprovam execução no mesmo dia com geotag e foto, permitindo ao contratante “ver” o local à distância. Contratante e prestador podem usar o mesmo app para contratar ou realizar tarefas.
+        </p>
+
+        <h3 style="margin-top:18px;">Potencial de clientes e usos</h3>
+        <ul class="advantages">
+          <li>Empresas que precisam de provas de campo sem deslocamento próprio.</li>
+          <li>Contratantes que querem registrar presença, verificar estoque ou pontos de venda em outras cidades.</li>
+          <li>Micro-tarefas urbanas imediatas: compras, fotos de produtos, checagem de serviços.</li>
+          <li>Usuários freelancers próximos que buscam rendimento extra com tarefas rápidas.</li>
+          <li>Mercado B2B e B2C com demandas temporárias, de monitoramento ou verificação.</li>
+        </ul>
+
+        <p class="english">
+          <strong>Quick pitch (English)</strong>: TelePorte lets users post local tasks — like verifying sales points, taking product photos, purchasing items, or generating proof of attendance — on a map with a coverage circle. Nearby providers accept tasks and validate execution the same day with geotagged photos, allowing the client to “see” the location remotely. Both clients and providers can use the same app for posting or performing tasks.
+        </p>
+      </section>
+
+      <aside class="card" aria-label="Vantagens para o investidor">
+        <h3 style="margin-top:0;">Vantagens para o investidor anjo</h3>
+
+        <ul class="advantages" style="list-style-type:disc;">
+          <li>Modelo escalável, com baixo custo inicial (MVP mobile + backend leve).</li>
+          <li>Receita recorrente via taxas de plataforma e participação sobre transações urgentes.</li>
+          <li>Alta aderência local, crescimento rápido em cidades densas.</li>
+          <li>Baixo CAPEX: PocketBase + Flask/Flutter, rodando em VPS ou PaaS.</li>
+          <li>Participação nos lucros com potencial de expansão nacional e internacional.</li>
+        </ul>
+
+        <h4 style="margin-top:18px;">Proposta de investimento</h4>
+        <p class="small">
+          Investidor anjo pode financiar aquisição inicial e operações regionais em troca de % de participação sobre receita líquida nos primeiros 24 meses, com roadmap de expansão via parcerias e integração logística.
+        </p>
+
+        <div style="margin-top:16px;">
+          <a class="cta" href="mailto:g23info@gmail.com?subject=Startup">Entrar em contato</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <div>Direitos reservados — Autor: Genis Rech Lopes</div>
+    <div class="small">Agradecimento à IA Qwen pela ajuda no desenvolvimento inicial.</div>
+  </footer>
+
+</body>
+</html>
