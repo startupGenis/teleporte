@@ -1,0 +1,62 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – TelePorte</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="logo" style="margin: 20px 0;">TelePorte</a>
+
+    <div class="card">
+      <h2>🔑 Entrar</h2>
+      <form id="form-login">
+        <input type="email" name="email" placeholder="E-mail" required />
+        <input type="password" name="password" placeholder="Senha" required />
+        <button type="submit" class="btn btn-primary">Entrar</button>
+      </form>
+      <p><a href="/cadastro">Não tem conta? Cadastre-se</a></p>
+      <p><a href="/adm">Acesso administrativo</a></p>
+    </div>
+  </div>
+
+  <script src="/static/js/script.js"></script>
+  <script>
+    document.getElementById('form-login').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        // Se for redirecionamento (não JSON), redireciona manualmente
+        if (res.redirected) {
+          window.location.href = res.url;
+          return;
+        }
+
+        const text = await res.text();
+        if (res.ok) {
+          window.location.href = '/dashboard';
+        } else {
+          alert("Erro: " + text);
+        }
+      } catch (err) {
+        console.error("Erro de conexão:", err);
+        alert("Erro de conexão com o servidor.");
+      }
+    });
+  </script>
+</body>
+</html>

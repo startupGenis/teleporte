@@ -1,0 +1,24 @@
+<!-- templates/trocar_senha.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🔐 Alterar Senha – Admin</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/adm/dashboard" class="logo">TelePorte Admin</a>
+
+    <div class="card">
+      <h2>🔐 Alterar Senha do Admin</h2>
+      <form method="post">
+        <input type="password" name="senha_atual" placeholder="Senha atual" required />
+        <input type="password" name="nova_senha" placeholder="Nova senha" required />
+        <input type="password" name="confirmar_senha" placeholder="Confirmar nova senha" required />
+        <button type="submit" class="btn btn-primary">Alterar Senha</button>
+      </form>
+      <p><a href="/adm/dashboard">← Voltar ao Dashboard</a></p>
+    </div>
+  </div>
+</body>
+</html>

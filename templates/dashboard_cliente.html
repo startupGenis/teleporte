@@ -1,0 +1,741 @@
+<!-- templates/dashboard_cliente.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>App – TelePorte</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    #mapa-container {
+      height: 300px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background: #1B263B;
+    }
+
+    .tarefa-item {
+      background: #1B263B;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border: 1px solid #2EC4B6;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #2EC4B6;
+      color: #0D1B2A;
+    }
+
+    .btn-secondary {
+      background: #FF9F1C;
+      color: #0D1B2A;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .card {
+      background: #1B263B;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 15px 0;
+      border: 1px solid #1B263B;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .main-tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      border-bottom: 2px solid #2EC4B6;
+    }
+
+    .main-tab {
+      padding: 12px 24px;
+      background: #1B263B;
+      color: #E0E1DD;
+      text-decoration: none;
+      border-radius: 8px 8px 0 0;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .main-tab:hover, .main-tab.active {
+      background: #2EC4B6;
+      color: #0D1B2A;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tarefa-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 16px;
+      background: #1B263B;
+      border-radius: 10px;
+      margin: 12px 0;
+      border: 1px solid #1B263B;
+      transition: all 0.3s;
+    }
+
+    .tarefa-card:hover {
+      border-color: #2EC4B6;
+      transform: translateY(-2px);
+    }
+
+    .tarefa-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .tarefa-info h4 {
+      margin: 0 0 8px 0;
+      color: #2EC4B6;
+      font-size: 18px;
+    }
+
+    .tarefa-info p {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      color: #E0E1DD;
+    }
+
+    .tarefa-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-self: center;
+    }
+
+    .pix-info {
+      font-size: 12px;
+      color: #aaa;
+      margin: 2px 0;
+    }
+
+    #enviar-prova {
+      display: none;
+      background: #0D1B2A;
+      border: 1px solid #2EC4B6;
+    }
+
+    .urgente-label {
+      color: #EF476F;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .valor-prestador {
+      color: #06D6A0;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .valor-contratante {
+      color: #FF9F1C;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .endereco-coord {
+      font-size: 13px;
+      color: #ccc;
+      margin: 4px 0;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #1B263B;
+      border-radius: 8px;
+      background: #0D1B2A;
+      color: #E0E1DD;
+      font-size: 16px;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #2EC4B6;
+      box-shadow: 0 0 0 2px rgba(46, 196, 182, 0.3);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #2EC4B6;
+      margin-bottom: 20px;
+    }
+
+    header .logo {
+      font-size: 26px;
+      font-weight: bold;
+      color: #2EC4B6;
+      text-decoration: none;
+    }
+
+    header nav a {
+      color: #E0E1DD;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    header nav a:hover {
+      color: #2EC4B6;
+    }
+
+    #localizacao-capturada {
+      color: #2EC4B6;
+      font-size: 14px;
+      margin: 10px 0;
+      font-weight: 500;
+    }
+
+    .file-input-label {
+      display: block;
+      background: #2EC4B6;
+      color: #0D1B2A;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 0;
+      transition: background 0.3s;
+    }
+
+    .file-input-label:hover {
+      background: #1FA89E;
+    }
+
+    #foto-input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="logo">TelePorte</a>
+      <nav>
+        <span>Olá, <strong id="nome-usuario">{{ nome_usuario }}</strong></span>
+        <a href="/trocar_senha" style="color: #FF9F1C; margin-left: 15px;">🔐 Alterar Senha</a>
+        <a href="/logout" style="color: #EF476F;">🚪 Sair</a>
+      </nav>
+    </header>
+
+    <div class="main-tabs">
+      <a href="#contratar" class="main-tab active" data-tab="contratar">💼 Contratar</a>
+      <a href="#prestar" class="main-tab" data-tab="prestar">🔍 Prestar</a>
+    </div>
+
+    <!-- CONTRATAR -->
+    <div id="contratar" class="tab-content active">
+      <div class="card">
+        <h3>📌 Publicar Nova Tarefa</h3>
+        <form id="form-publicar-tarefa">
+          <input type="text" name="titulo" placeholder="Título da tarefa" required />
+          <textarea name="descricao" placeholder="Descrição (ex: Tirar foto da vitrine, verificar preço, etc.)" rows="3"></textarea>
+          <input type="text" id="endereco-input" placeholder="Endereço (ex: Av. Paulista, 1000, São Paulo)" required />
+          <button type="button" onclick="buscarEndereco()" class="btn btn-secondary">🔍 Buscar Endereço</button>
+          <div id="mapa-container"></div>
+          <input type="hidden" id="lat-hidden" name="lat" />
+          <input type="hidden" id="lng-hidden" name="lng" />
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex: 1;">
+              <label style="display: block; margin-bottom: 5px; color: #E0E1DD;">Preço a pagar (mín. R$32,00):</label>
+              <input type="number" name="preco" min="32" step="60" value="32.00" required />
+            </div>
+            <div style="flex: 1;">
+              <label style="display: block; margin-bottom: 5px; color: #E0E1DD;">Prazo:</label>
+              <input type="datetime-local" name="prazo" required />
+            </div>
+          </div>
+          <label style="display: flex; align-items: center; gap: 8px; margin: 15px 0;">
+            <input type="checkbox" id="urgente-check" name="urgente">
+            <span class="urgente-label">🔥 Tarefa URGENTE (valor dobra!)</span>
+          </label>
+          <button type="submit" class="btn btn-primary">Publicar Tarefa</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>📋 Minhas Tarefas Publicadas</h3>
+        <div id="minhas-tarefas">
+          <p style="color: #aaa;">Carregando...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESTAR -->
+    <div id="prestar" class="tab-content">
+      <div class="card">
+        <h3>🎯 Tarefas Disponíveis para Você</h3>
+        <div id="localizacao-usuario">
+          <p style="color: #aaa;">Carregando localização...</p>
+        </div>
+        <div id="lista-tarefas">
+          <p style="color: #aaa;">Carregando tarefas próximas...</p>
+        </div>
+
+        <!-- Formulário para enviar prova -->
+        <div id="enviar-prova" class="card">
+          <h3>📸 Enviar Prova da Tarefa #<span id="tarefa-id-prova">0</span></h3>
+          <form id="form-prova">
+            <label for="foto-input" class="file-input-label">
+              📸 Selecionar ou Tirar Foto
+            </label>
+            <input type="file" id="foto-input" accept="image/*" capture="environment" required />
+            <div id="localizacao-capturada">⏳ Aguardando captura de localização...</div>
+            
+            <input type="hidden" name="geotag_lat" id="geotag_lat" />
+            <input type="hidden" name="geotag_lng" id="geotag_lng" />
+            
+            <textarea name="descricao" placeholder="Observações ou justificativa (opcional)" rows="3"></textarea>
+            
+            <button type="submit" class="btn btn-primary">📤 Enviar Prova</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/script.js"></script>
+  <script>
+    // === Abas principais ===
+    document.querySelectorAll('.main-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabId = tab.dataset.tab;
+
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // === Mapa ===
+    let mapa;
+    let marker;
+
+    function initMapa(lat = -23.5505, lng = -46.6333) {
+      if (mapa) mapa.remove();
+      mapa = L.map('mapa-container').setView([lat, lng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(mapa);
+
+      marker = L.marker([lat, lng], { draggable: true }).addTo(mapa);
+      marker.bindPopup("Local da tarefa").openPopup();
+
+      marker.on('dragend', function(e) {
+        const latlng = marker.getLatLng();
+        document.getElementById('lat-hidden').value = latlng.lat;
+        document.getElementById('lng-hidden').value = latlng.lng;
+      });
+
+      mapa.on('click', function(e) {
+        const latlng = e.latlng;
+        marker.setLatLng(latlng);
+        document.getElementById('lat-hidden').value = latlng.lat;
+        document.getElementById('lng-hidden').value = latlng.lng;
+      });
+    }
+
+    async function buscarEndereco() {
+      const endereco = document.getElementById('endereco-input').value;
+      if (!endereco) return;
+
+      try {
+        const res = await fetch('/api/mapa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endereco })
+        });
+        const json = await res.json();
+        if (res.ok) {
+          document.getElementById('lat-hidden').value = json.lat;
+          document.getElementById('lng-hidden').value = json.lng;
+          initMapa(json.lat, json.lng);
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        alert("Erro de conexão.");
+      }
+    }
+
+    // === Publicar tarefa ===
+    document.getElementById('form-publicar-tarefa').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+
+      if (parseFloat(data.preco) < 32) {
+        alert("O valor mínimo para publicar uma tarefa é R$ 32,00.");
+        return;
+      }
+
+      if (document.getElementById('urgente-check').checked) {
+        data.preco = (parseFloat(data.preco) * 2).toFixed(2);
+        alert(`⚠️ Tarefa marcada como URGENTE! Valor atualizado para R$ ${data.preco}`);
+      }
+
+      // Adiciona raio padrão 500m (não exibido no formulário)
+      data.raio = 500;
+
+      if (!data.titulo || !data.preco || !data.prazo || !data.lat || !data.lng) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/tarefas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+        if (res.ok) {
+          alert(json.mensagem);
+          this.reset();
+          document.querySelector('input[name="preco"]').value = "32.00";
+          carregarMinhasTarefas();
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        alert("Erro de conexão com o servidor.");
+        console.error(err);
+      }
+    });
+
+    // === Carregar minhas tarefas ===
+    async function carregarMinhasTarefas() {
+      try {
+        const res = await fetch('/api/tarefas/me');
+        const tarefas = await res.json();
+
+        const container = document.getElementById('minhas-tarefas');
+        if (tarefas.length === 0) {
+          container.innerHTML = '<p style="color: #FF9F1C;">Você ainda não publicou nenhuma tarefa.</p>';
+        } else {
+          container.innerHTML = tarefas.map(t => `
+            <div class="tarefa-item">
+              <strong>${t.titulo}</strong><br>
+              <div class="endereco-coord">📍 ${t.endereco}</div>
+              <div class="endereco-coord">📌 Coordenadas: ${t.lat.toFixed(6)}, ${t.lng.toFixed(6)}</div>
+              <small>💰 R$ ${parseFloat(t.preco).toFixed(2)} • ${t.status}</small><br>
+              <button class="btn btn-secondary" onclick="copiarCoordenadas(${t.lat}, ${t.lng})">📋 Copiar Coordenadas</button>
+              <div id="pix-${t.id}"></div>
+              ${t.status === 'pendente_pagamento' ? `<button class="btn btn-primary" onclick="gerarPix(${t.id})">💳 Gerar Pix para aprovar</button>` : ''}
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error("Erro ao carregar minhas tarefas:", err);
+        document.getElementById('minhas-tarefas').innerHTML = '<p style="color: #EF476F;">Erro ao carregar tarefas.</p>';
+      }
+    }
+
+    // === Copiar coordenadas ===
+    function copiarCoordenadas(lat, lng) {
+      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      navigator.clipboard.writeText(coords).then(() => {
+        alert(`Coordenadas copiadas: ${coords}`);
+      });
+    }
+
+    // === Gerar Pix ===
+    async function gerarPix(tarefaId) {
+      try {
+        const res = await fetch(`/api/tarefas/${tarefaId}/gerar_pix`, { method: 'POST' });
+        const json = await res.json();
+
+        if (res.ok) {
+          const pixHtml = `
+            <div class="card">
+              <strong>💳 Pagamento via Pix</strong><br>
+              <small>Chave: ${json.chave}</small><br>
+              <small>Valor: R$ ${parseFloat(json.valor).toFixed(2)}</small><br>
+              <code style="background:#0D1B2A; padding:8px; border-radius:6px; display:block; margin:8px 0; color:#2EC4B6;">
+                ${json.txid}
+              </code>
+              <textarea readonly style="width:100%; height:70px; background:#0D1B2A; color:#E0E1DD; border:1px solid #2EC4B6; border-radius:6px; padding:10px; margin:8px 0; font-family: monospace;">
+${json.pix}
+              </textarea>
+              <button class="btn btn-secondary" onclick="copiarTexto('${json.pix}')">📋 Copiar Código</button>
+              <small style="color: #aaa;">💡 Use este código ao pagar</small>
+            </div>
+          `;
+          document.getElementById(`pix-${tarefaId}`).innerHTML = pixHtml;
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        alert("Erro de conexão.");
+      }
+    }
+
+    // === Copiar texto ===
+    function copiarTexto(texto) {
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Código copiado!");
+      });
+    }
+
+    // === Sistema de atualização de localização a cada 30min ===
+    let ultimaAtualizacao = null;
+    const INTERVALO_ATUALIZACAO = 30 * 60 * 1000; // 30 minutos
+
+    async function atualizarLocalizacao() {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          });
+        });
+
+        const { latitude: lat, longitude: lng } = position.coords;
+
+        document.getElementById('localizacao-usuario').innerHTML = `
+          <p><strong style="color: #2EC4B6;">📍 Sua localização:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+        `;
+
+        ultimaAtualizacao = Date.now();
+
+        // Recarrega tarefas com nova localização
+        carregarTarefasPrestar();
+
+      } catch (err) {
+        console.error("Erro ao atualizar localização:", err);
+        document.getElementById('localizacao-usuario').innerHTML = `
+          <p style="color: #EF476F;"><strong>❌ Erro:</strong> Não foi possível obter sua localização.</p>
+        `;
+      }
+    }
+
+    // === Carregar tarefas para prestar (VERSÃO CORRIGIDA) ===
+    async function carregarTarefasPrestar() {
+      try {
+        // Verifica se precisa atualizar localização
+        const agora = Date.now();
+        if (!ultimaAtualizacao || (agora - ultimaAtualizacao) > INTERVALO_ATUALIZACAO) {
+          await atualizarLocalizacao();
+          return; // atualizarLocalizacao já chama carregarTarefasPrestar novamente
+        }
+
+        // Pega localização atual (cacheada ou recente)
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            maximumAge: 5 * 60 * 1000,
+            timeout: 5000
+          });
+        });
+
+        const { latitude: lat, longitude: lng } = position.coords;
+
+        document.getElementById('localizacao-usuario').innerHTML = `
+          <p><strong style="color: #2EC4B6;">📍 Sua localização:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+        `;
+
+        const res = await fetch(`/api/tarefas/prestar?lat=${lat}&lng=${lng}&raio=10`);
+        const tarefas = await res.json();
+
+        const container = document.getElementById('lista-tarefas');
+
+        // Monta conteúdo completo, incluindo o botão de atualização
+        let conteudo = `
+          <button onclick="atualizarLocalizacao()" class="btn btn-secondary" style="margin: 15px 0 20px 0;">
+            🔄 Atualizar Minha Localização
+          </button>
+        `;
+
+        if (tarefas.length === 0) {
+          conteudo += '<p style="color: #FF9F1C;">Nenhuma tarefa disponível no momento.</p>';
+        } else {
+          const tarefasProximas = tarefas.filter(t => t.distancia_km <= 10);
+          if (tarefasProximas.length === 0) {
+            conteudo += '<p style="color: #FF9F1C;">Nenhuma tarefa encontrada dentro de 10km.</p>';
+          } else {
+            conteudo += tarefasProximas.map(t => {
+              const valorOriginal = parseFloat(t.preco);
+              const valorPrestador = (valorOriginal * 0.75).toFixed(2);
+
+              return `
+                <div class="tarefa-card">
+                  <div class="tarefa-info">
+                    <h4>${t.titulo}</h4>
+                    <div class="endereco-coord">📍 ${t.endereco}</div>
+                    <div class="endereco-coord">📌 Coordenadas: ${t.lat.toFixed(6)}, ${t.lng.toFixed(6)}</div>
+                    <p class="valor-prestador">💰 R$ ${valorPrestador} <span class="valor-contratante">(ofertado: R$ ${valorOriginal.toFixed(2)})</span></p>
+                    <p style="color: #aaa;">📍 ${t.distancia_km} km</p>
+                    <button class="btn btn-secondary" onclick="copiarEnderecoCompleto('${t.endereco}', ${t.lat}, ${t.lng})">📋 Copiar para Mapas</button>
+                  </div>
+                  <div class="tarefa-actions">
+                    <button class="btn btn-primary" onclick="aceitarTarefa(${t.id})">✅ Aceitar</button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        container.innerHTML = conteudo;
+
+      } catch (err) {
+        console.error("Erro ao carregar tarefas para prestar:", err);
+        document.getElementById('lista-tarefas').innerHTML = '<p style="color: #EF476F;">Erro ao carregar tarefas.</p>';
+      }
+    }
+
+    // === Copiar endereço completo ===
+    function copiarEnderecoCompleto(endereco, lat, lng) {
+      const texto = `${endereco} | Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      navigator.clipboard.writeText(texto).then(() => {
+        alert(`✅ Copiado: ${texto}\nCole no Google Maps, Waze, etc.`);
+      });
+    }
+
+    // === Aceitar tarefa ===
+    async function aceitarTarefa(id) {
+      if (!confirm(`Aceitar tarefa #${id}?`)) return;
+
+      try {
+        const res = await fetch(`/api/tarefas/aceitar/${id}`, { method: 'POST' });
+        const json = await res.json();
+
+        if (res.ok) {
+          alert(json.mensagem);
+          document.getElementById('tarefa-id-prova').textContent = id;
+          document.getElementById('enviar-prova').style.display = 'block';
+          
+          // Solicita permissão de localização assim que o formulário é exibido
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                document.getElementById('geotag_lat').value = latitude;
+                document.getElementById('geotag_lng').value = longitude;
+                document.getElementById('localizacao-capturada').textContent = `✅ Localização capturada: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                document.getElementById('localizacao-capturada').style.color = '#06D6A0';
+              },
+              (error) => {
+                console.error("Erro ao obter localização:", error);
+                document.getElementById('localizacao-capturada').textContent = "❌ Não foi possível capturar sua localização. Verifique as permissões.";
+                document.getElementById('localizacao-capturada').style.color = '#EF476F';
+              }
+            );
+          } else {
+            document.getElementById('localizacao-capturada').textContent = "⚠️ Geolocalização não suportada neste navegador.";
+          }
+          
+          carregarTarefasPrestar();
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        alert("Erro de conexão.");
+      }
+    }
+
+    // === Enviar Prova ===
+    document.getElementById('form-prova').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const tarefaId = document.getElementById('tarefa-id-prova').textContent;
+
+      const fileInput = document.getElementById('foto-input');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Selecione uma foto.");
+        return;
+      }
+
+      // Verifica se localização foi capturada
+      const lat = document.getElementById('geotag_lat').value;
+      const lng = document.getElementById('geotag_lng').value;
+      if (!lat || !lng) {
+        alert("Localização não capturada. Permita o acesso à localização.");
+        return;
+      }
+
+      // Lê o arquivo como base64 para enviar
+      const reader = new FileReader();
+      reader.onloadend = async function() {
+        const fotoBase64 = reader.result;
+
+        const data = {
+          foto_url: fotoBase64,
+          geotag_lat: parseFloat(lat),
+          geotag_lng: parseFloat(lng),
+          descricao: document.querySelector('textarea[name="descricao"]').value.trim() || null
+        };
+
+        try {
+          const res = await fetch(`/api/tarefas/${tarefaId}/prova`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          const json = await res.json();
+
+          if (res.ok) {
+            alert(json.mensagem);
+            document.getElementById('enviar-prova').style.display = 'none';
+            carregarTarefasPrestar();
+          } else {
+            alert("Erro: " + json.erro);
+          }
+        } catch (err) {
+          alert("Erro de conexão.");
+        }
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    // === Inicialização ===
+    window.addEventListener('load', () => {
+      initMapa();
+      carregarMinhasTarefas();
+      carregarTarefasPrestar();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!-- templates/cadastro.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro – TelePorte</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="logo" style="margin: 20px 0;">TelePorte</a>
+
+    <div class="card">
+      <h2>📝 Criar Conta</h2>
+      <form id="form-cadastro">
+        <input type="text" name="nome" placeholder="Nome completo" required />
+        <input type="email" name="email" placeholder="E-mail" required />
+        <input type="password" name="senha" placeholder="Senha (mín. 6 caracteres)" required minlength="6" />
+        <select name="tipo" required>
+          <option value="">Selecione o tipo de conta</option>
+          <option value="contratante">Contratante</option>
+          <option value="prestador">Prestador de Serviços</option>
+          <option value="ambos">Ambos</option>
+        </select>
+        <input type="text" name="cep" placeholder="CEP (ex: 01001-000)" required pattern="\d{5}-?\d{3}" />
+        <input type="text" name="telefone" placeholder="Telefone (ex: (11) 98765-4321)" required />
+        <input type="text" name="cidade" placeholder="Cidade" required />
+        <input type="text" name="estado" placeholder="Estado (ex: SP)" required maxlength="2" />
+        <label>
+          <input type="checkbox" name="maior_18" value="1" required />
+          Declaro ser maior de 18 anos.
+        </label>
+        <button type="submit" class="btn btn-primary">Criar Conta</button>
+      </form>
+      <p><a href="/login">Já tem conta? Faça login</a></p>
+    </div>
+  </div>
+
+  <script src="/static/js/script.js"></script>
+  <script>
+    document.getElementById('form-cadastro').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+
+      // Validação simples de e-mail
+      if (!data.email.includes('@')) {
+        alert("E-mail inválido.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/usuarios', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+
+        if (res.ok) {
+          alert(json.mensagem);
+          window.location.href = '/login';
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        console.error("Erro de conexão:", err);
+        alert("Erro de conexão com o servidor.");
+      }
+    });
+  </script>
+</body>
+</html>

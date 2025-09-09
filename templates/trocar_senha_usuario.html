@@ -1,0 +1,60 @@
+<!-- templates/trocar_senha_usuario.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔐 Alterar Minha Senha – TelePorte</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/dashboard" class="logo">TelePorte</a>
+
+    <div class="card">
+      <h2>🔐 Alterar Minha Senha</h2>
+      <form id="form-trocar-senha">
+        <input type="password" name="senha_atual" placeholder="Senha atual" required />
+        <input type="password" name="nova_senha" placeholder="Nova senha (mín. 6 caracteres)" required minlength="6" />
+        <input type="password" name="confirmar_senha" placeholder="Confirmar nova senha" required />
+        <button type="submit" class="btn btn-primary">Alterar Senha</button>
+      </form>
+      <p><a href="/dashboard">← Voltar ao Dashboard</a></p>
+    </div>
+  </div>
+
+  <script src="/static/js/script.js"></script>
+  <script>
+    document.getElementById('form-trocar-senha').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+
+      if (data.nova_senha !== data.confirmar_senha) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/usuarios/trocar_senha', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+
+        if (res.ok) {
+          alert(json.mensagem);
+          window.location.href = '/dashboard';
+        } else {
+          alert("Erro: " + json.erro);
+        }
+      } catch (err) {
+        console.error("Erro de conexão:", err);
+        alert("Erro de conexão com o servidor.");
+      }
+    });
+  </script>
+</body>
+</html>

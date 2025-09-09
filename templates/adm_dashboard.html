@@ -1,0 +1,253 @@
+<!-- templates/adm_dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>📊 Dashboard - TelePorte Admin</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background: #0D1B2A;
+      color: #E0E1DD;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #1B263B;
+      padding-bottom: 10px;
+    }
+    .tabs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 10px;
+    }
+    .tabs a {
+      color: #E0E1DD;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      background: #1B263B;
+    }
+    .tabs a:hover, .tabs .active {
+      background: #2EC4B6;
+      color: #0D1B2A;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1B263B;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #0D1B2A;
+    }
+    th {
+      background: #1B263B;
+      color: #2EC4B6;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #2EC4B6;
+      color: #0D1B2A;
+    }
+    .btn-danger {
+      background: #EF476F;
+      color: white;
+    }
+    .btn-warning {
+      background: #FF9F1C;
+      color: #0D1B2A;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .banir-btn {
+      margin-left: auto;
+    }
+    .card {
+      background: #1B263B;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .metrics {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .metric {
+      flex: 1;
+      min-width: 180px;
+      text-align: center;
+      padding: 15px;
+      background: #1B263B;
+      border-radius: 8px;
+      border: 1px solid #0D1B2A;
+    }
+    .metric h3 {
+      margin: 0;
+      color: #2EC4B6;
+    }
+    .metric p {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 10px 0 0 0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px 0;
+      border-bottom: 1px dashed #1B263B;
+    }
+    .endereco-cell {
+      font-size: 13px;
+      color: #ccc;
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 Dashboard Administrativo</h1>
+      <nav>
+        <a href="/adm/trocar_senha" style="color: #FF9F1C; margin-right: 15px;">🔐 Alterar Senha</a>
+        <a href="/adm/logout" style="color: #EF476F;">🚪 Sair</a>
+      </nav>
+    </header>
+
+    <!-- ABAS INTERNAS -->
+    <ul class="tabs">
+      <li><a href="/adm/dashboard" class="{% if tab != 'metricas' %}active{% endif %}">📋 Aprovar Pagamentos</a></li>
+      <li><a href="/adm/dashboard?tab=metricas" class="{% if tab == 'metricas' %}active{% endif %}">📊 Métricas</a></li>
+    </ul>
+
+    <!-- CONTEÚDO DINÂMICO -->
+    {% if tab == 'metricas' %}
+      <form method="GET" action="/adm/dashboard">
+        <input type="hidden" name="tab" value="metricas">
+        <button type="submit" class="btn btn-primary">Mostrar Métricas</button>
+      </form>
+
+      {% if tarefas is defined %}
+        <br>
+        <div class="metrics">
+          <div class="metric">
+            <h3>🟢 Abertas</h3>
+            <p>{{ abertas }}</p>
+          </div>
+          <div class="metric">
+            <h3>🟡 Pendentes</h3>
+            <p>{{ pendentes }}</p>
+          </div>
+          <div class="metric">
+            <h3>🔴 Recusadas</h3>
+            <p>{{ recusadas }}</p>
+          </div>
+          <div class="metric">
+            <h3>🟠 Expiradas</h3>
+            <p>{{ expiradas }}</p>
+          </div>
+          <div class="metric">
+            <h3>📦 Total</h3>
+            <p>{{ total }}</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📍 Por Cidade</h2>
+          <ul>
+            {% for cidade, qtd in por_cidade.items() %}
+              <li><strong>{{ cidade }}</strong>: {{ qtd }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2>🌐 Por Estado</h2>
+          <ul>
+            {% for estado, qtd in por_estado.items() %}
+              <li><strong>{{ estado }}</strong>: {{ qtd }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <!-- ABA 1: Aprovar Pagamentos -->
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Endereço</th>
+            <th>Preço</th>
+            <th>Contratante</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tarefas %}
+          <tr>
+            <td>{{ t.titulo }}</td>
+            <td class="endereco-cell">{{ t.endereco }}</td>
+            <td>R$ {{ "%.2f"|format(t.preco) }}</td>
+            <td>{{ t.contratante_nome }}</td>
+            <td>{{ t.status }}</td>
+            <td class="actions">
+              <a href="/adm/aprovar/{{ t.id }}" class="btn btn-primary">
+                ✅ Aprovar
+              </a>
+              <a href="/adm/reprovar/{{ t.id }}" class="btn btn-warning">
+                ⚠️ Reprovar
+              </a>
+              <a href="/adm/banir/{{ t.contratante_id }}" class="btn btn-danger banir-btn">
+                {% if usuarios_banidos[t.contratante_id] %}✅ Desbanir{% else %}❌ Banir{% endif %}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if not tarefas %}
+        <p>Nenhuma tarefa pendente de pagamento.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+</body>
+</html>
