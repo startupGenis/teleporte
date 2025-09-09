@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: teleporte
+    plan: free
+    runtime: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 -b 0.0.0.0:$PORT app:app
+    envVars:
+      - key: PORT
+        value: ${PORT}
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD_HASH
+        fromSecret: ADMIN_PASSWORD_HASH
+    disk:
+      name: data
+      mountPath: /app
