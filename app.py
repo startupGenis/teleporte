@@ -1,12 +1,8 @@
-# app.py
-# TelePorte Backend
-# - Flask + SQLite3
-# - Web + Flutter
-# - Geolocalização de fotos
-# - Pix para aprovação
-# - Segurança com hash
-# - Desenvolvido por Genis R Lopes
-# - Especialista em Python, Flutter e Startup
+# app.py — TelePorte MVP — VERSÃO FINAL CORRIGIDA
+# - Validação de prazo mínimo (3h) — CORRIGIDO
+# - Filtra tarefas expiradas — CORRIGIDO
+# - Aceitação de tarefa com prazo expirado — CORRIGIDO
+# - Segurança, câmera, geotag, Pix, etc.
 
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -14,16 +10,15 @@ from datetime import datetime, timedelta
 import sqlite3
 import os
 import uuid
+import re
+import math
 from geopy.geocoders import Nominatim
 import folium
-import re
-
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "mudar_em_producao")
 app.permanent_session_lifetime = timedelta(minutes=30)
 
-# === DATABASE ===
 DATABASE = 'teleporte.db'
 
 def get_db():
@@ -76,6 +71,7 @@ def init_db():
             geotag_lat REAL NOT NULL,
             geotag_lng REAL NOT NULL,
             timestamp_foto TIMESTAMP NOT NULL,
+            descricao TEXT,
             enviado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             status TEXT DEFAULT 'pendente',
             FOREIGN KEY (tarefa_id) REFERENCES tarefas (id)
@@ -94,10 +90,15 @@ def init_db():
 
 init_db()
 
-# === SENHA DO ADMIN ===
+def limpar_conteudo(texto: str) -> str:
+    if not texto:
+        return texto
+    texto = re.sub(r'\b\d{8,}\b', '[TELEFONE REMOVIDO]', texto)
+    texto = re.sub(r'@\w+', '[USUÁRIO REMOVIDO]', texto)
+    return texto
+
 ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH") or 'pbkdf2:sha256:600000$twC5pLncNlSkKimf$d3deecfc900d244f3255e959c2c7c95a57f136554363878c661166ab61e5bdda'
 
-# === RATE LIMIT ===
 tentativas_login = {}
 MAX_TENTATIVAS = 5
 JANELA_MINUTOS = 15
@@ -112,7 +113,6 @@ def verificar_rate_limit(ip: str) -> bool:
 def registrar_tentativa(ip: str):
     tentativas_login.setdefault(ip, []).append(datetime.now())
 
-# === PROTEÇÃO DE ROTAS ===
 def requires_admin(f):
     def decorated(*args, **kwargs):
         if not session.get("admin"):
@@ -195,6 +195,38 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+# === TROCAR SENHA USUÁRIO ===
+@app.route("/trocar_senha", methods=["GET"])
+@requires_user
+def trocar_senha_usuario():
+    return render_template("trocar_senha_usuario.html")
+
+@app.route("/api/usuarios/trocar_senha", methods=["POST"])
+@requires_user
+def api_trocar_senha():
+    data = request.json
+    senha_atual = data.get("senha_atual")
+    nova_senha = data.get("nova_senha")
+
+    if not senha_atual or not nova_senha:
+        return jsonify({"erro": "Todos os campos são obrigatórios"}), 400
+
+    with get_db() as conn:
+        user = conn.execute("SELECT senha FROM usuarios WHERE id = ?", (session['usuario_id'],)).fetchone()
+
+    if not user or not check_password_hash(user['senha'], senha_atual):
+        return jsonify({"erro": "Senha atual incorreta"}), 401
+
+    if len(nova_senha) < 6:
+        return jsonify({"erro": "A nova senha deve ter pelo menos 6 caracteres"}), 400
+
+    nova_senha_hash = generate_password_hash(nova_senha)
+
+    with get_db() as conn:
+        conn.execute("UPDATE usuarios SET senha = ? WHERE id = ?", (nova_senha_hash, session['usuario_id']))
+
+    return jsonify({"mensagem": "Senha alterada com sucesso!"}), 200
+
 # === DASHBOARD DO CLIENTE ===
 @app.route("/dashboard")
 @requires_user
@@ -214,6 +246,26 @@ def api_minhas_tarefas():
         """, (session['usuario_id'],)).fetchall()]
     return jsonify(tarefas)
 
+# === API: Detalhes da Tarefa ===
+@app.route('/api/tarefas/<int:id>', methods=['GET'])
+@requires_user
+def api_detalhes_tarefa(id):
+    with get_db() as conn:
+        tarefa = conn.execute("""
+            SELECT t.*, u.nome as contratante_nome
+            FROM tarefas t
+            JOIN usuarios u ON t.contratante_id = u.id
+            WHERE t.id = ?
+        """, (id,)).fetchone()
+
+        if not tarefa:
+            return jsonify({"erro": "Tarefa não encontrada"}), 404
+
+        if session.get("admin") or tarefa['contratante_id'] == session['usuario_id'] or tarefa['prestador_id'] == session['usuario_id']:
+            return jsonify(dict(tarefa))
+        else:
+            return jsonify({"erro": "Não autorizado"}), 403
+
 # === API: Geocodificação + Mapa com Folium ===
 @app.route('/api/mapa', methods=['POST'])
 def api_mapa():
@@ -227,7 +279,6 @@ def api_mapa():
     if not location:
         return jsonify({"erro": "Endereço não encontrado"}), 404
 
-    # Gera mapa com folium
     mapa = folium.Map(location=[location.latitude, location.longitude], zoom_start=15)
     folium.Marker(
         [location.latitude, location.longitude],
@@ -248,24 +299,43 @@ def api_mapa():
 @requires_user
 def api_criar_tarefa():
     data = request.json
-    # ✅ Corrigido: removido campos não obrigatórios da verificação
     required = ['titulo', 'lat', 'lng', 'raio', 'preco', 'prazo']
     if not all(data.get(k) for k in required):
         return jsonify({"erro": "Campos obrigatórios faltando"}), 400
 
     try:
+        prazo_str = data['prazo']
+        
+        # ✅ CORREÇÃO: Trata datetime-local sem fuso
+        if 'T' in prazo_str and len(prazo_str) == 16:  # Formato: "2025-09-10T15:30"
+            prazo_str += ":00"  # Adiciona segundos
+
+        # ✅ CORREÇÃO: Força fuso local
+        prazo_dt = datetime.fromisoformat(prazo_str.replace('Z', '+00:00'))
+        agora = datetime.now()
+        minimo = agora + timedelta(hours=3)
+
+        if prazo_dt < minimo:
+            return jsonify({
+                "erro": f"Prazo inválido. O mínimo é 3 horas a partir de agora ({agora.strftime('%Y-%m-%d %H:%M')})."
+            }), 400
+
+        descricao = limpar_conteudo(data.get('descricao', ''))
+
         with get_db() as conn:
             cursor = conn.execute('''INSERT INTO tarefas 
                 (titulo, descricao, endereco, lat, lng, raio, preco, prazo, status, contratante_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente_pagamento', ?)''',
-                (data['titulo'], data.get('descricao', ''), data.get('endereco', ''),
+                (data['titulo'], descricao, data.get('endereco', ''),
                  data['lat'], data['lng'], data['raio'],
-                 data['preco'], data['prazo'], session['usuario_id']))
+                 data['preco'], prazo_str, session['usuario_id']))
             tarefa_id = cursor.lastrowid
         return jsonify({
             "mensagem": "Tarefa criada! Gere o Pix para aprovar.",
             "tarefa_id": tarefa_id
         }), 201
+    except ValueError as e:
+        return jsonify({"erro": f"Formato de data/hora inválido. Use AAAA-MM-DDTHH:MM (ex: 2025-09-10T15:30). Detalhe: {str(e)}"}), 400
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
@@ -275,23 +345,38 @@ def api_criar_tarefa():
 def api_tarefas_prestar():
     lat = request.args.get('lat', type=float)
     lng = request.args.get('lng', type=float)
+    raio_max = request.args.get('raio', default=10, type=int)
 
     with get_db() as conn:
+        # ✅ CORREÇÃO: Usa NOW com timezone do servidor
+        agora_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         if lat and lng:
+            lat_min, lat_max = lat - (raio_max / 111.0), lat + (raio_max / 111.0)
+            lng_min, lng_max = lng - (raio_max / (111.0 * abs(math.cos(math.radians(lat))))), lng + (raio_max / (111.0 * abs(math.cos(math.radians(lat)))))
+
             tarefas = [dict(row) for row in conn.execute("""
                 SELECT id, titulo, endereco, preco, lat, lng,
-                       ROUND(111.1 * SQRT(POW(lat - ?, 2) + POW(lng - ?, 2)), 1) as distancia_km
+                       ROUND(111.1 * SQRT(POW(lat - ?, 2) + POW(lng - ?, 2)), 1) as distancia_km,
+                       prazo
                 FROM tarefas 
                 WHERE status = 'aberta'
+                  AND lat BETWEEN ? AND ?
+                  AND lng BETWEEN ? AND ?
+                  AND ROUND(111.1 * SQRT(POW(lat - ?, 2) + POW(lng - ?, 2)), 1) <= ?
+                  AND prazo > ?
                 ORDER BY distancia_km
                 LIMIT 20
-            """, (lat, lng)).fetchall()]
+            """, (lat, lng, lat_min, lat_max, lng_min, lng_max, lat, lng, agora_str)).fetchall()]
         else:
             tarefas = [dict(row) for row in conn.execute("""
-                SELECT id, titulo, endereco, preco, lat, lng, 0 as distancia_km 
+                SELECT id, titulo, endereco, preco, lat, lng, 0 as distancia_km, prazo
                 FROM tarefas 
                 WHERE status = 'aberta'
-            """).fetchall()]
+                  AND prazo > ?
+                LIMIT 20
+            """, (agora_str,)).fetchall()]
+
     return jsonify(tarefas)
 
 # === API: Aceitar Tarefa ===
@@ -299,17 +384,49 @@ def api_tarefas_prestar():
 @requires_user
 def aceitar_tarefa(id):
     with get_db() as conn:
-        tarefa = conn.execute("SELECT * FROM tarefas WHERE id = ? AND status = 'aberta'", (id,)).fetchone()
+        tarefa = conn.execute("SELECT *, prazo FROM tarefas WHERE id = ? AND status = 'aberta'", (id,)).fetchone()
         if not tarefa:
             return jsonify({"erro": "Tarefa não encontrada ou já aceita"}), 404
+
+        # ✅ CORREÇÃO: Compara com o mesmo fuso
+        prazo_dt = datetime.fromisoformat(tarefa['prazo'].replace('Z', '+00:00'))
+        if datetime.now() > prazo_dt:
+            return jsonify({"erro": "Esta tarefa já expirou."}), 400
 
         conn.execute("UPDATE tarefas SET status = 'em_andamento', prestador_id = ? WHERE id = ?", (session['usuario_id'], id))
     return jsonify({"mensagem": "Tarefa aceita com sucesso!"})
 
+# === API: Enviar Prova ===
+@app.route('/api/tarefas/<int:id>/prova', methods=['POST'])
+@requires_user
+def enviar_prova(id):
+    data = request.json
+    required = ['foto_url', 'geotag_lat', 'geotag_lng']
+    if not all(data.get(k) for k in required):
+        return jsonify({"erro": "Foto, latitude e longitude do geotag são obrigatórios"}), 400
+
+    with get_db() as conn:
+        tarefa = conn.execute("SELECT prestador_id, status FROM tarefas WHERE id = ?", (id,)).fetchone()
+        if not tarefa:
+            return jsonify({"erro": "Tarefa não encontrada"}), 404
+        if tarefa['prestador_id'] != session['usuario_id']:
+            return jsonify({"erro": "Não autorizado"}), 403
+        if tarefa['status'] != 'em_andamento':
+            return jsonify({"erro": "Tarefa não está em andamento"}), 400
+
+        descricao = limpar_conteudo(data.get('descricao', '')) if data.get('descricao') else None
+
+        conn.execute('''INSERT INTO provas (tarefa_id, foto_url, geotag_lat, geotag_lng, timestamp_foto, descricao)
+                        VALUES (?, ?, ?, ?, ?, ?)''',
+                     (id, data['foto_url'], data['geotag_lat'], data['geotag_lng'], datetime.now().isoformat(), descricao))
+
+        conn.execute("UPDATE tarefas SET status = 'aguardando_aprovacao' WHERE id = ?", (id,))
+
+    return jsonify({"mensagem": "Prova enviada com sucesso. Aguardando aprovação."}), 201
+
 # === GERAR PIX ===
 pagamentos_temp = {}
 
-# === GERAR PIX PARA TAREFA ===
 @app.route('/api/tarefas/<int:id>/gerar_pix', methods=['POST'])
 @requires_user
 def gerar_pix(id):
@@ -328,17 +445,12 @@ def gerar_pix(id):
             return jsonify({"erro": "Tarefa já foi paga ou cancelada"}), 400
 
         valor = tarefa['preco']
-        
-        # Gera TXID com: teleporte-AAAAMMDD-HHMM-Titulo
         data_hora = datetime.now().strftime("%Y%m%d-%H%M")
         titulo_limpo = re.sub(r'[^a-zA-Z0-9]', '', tarefa['titulo'])[:20]
         txid = f"teleporte-{data_hora}-{titulo_limpo}".lower()
-
-        # Dados do Pix (chave fixa do sistema)
         chave_pix = "053984797344"
         pix_copia_cola = f"PIX {valor} para {chave_pix} | Ref: {txid}"
 
-        # Salva temporariamente (em produção, salve no banco)
         pagamentos_temp[txid] = {
             "tarefa_id": id,
             "valor": valor,
@@ -359,7 +471,26 @@ def gerar_pix(id):
             "contratante": tarefa['contratante_nome']
         }), 201
 
-# === REPROVAR TAREFA (marca como 'recusada') ===
+# === APROVAR PAGAMENTO ===
+@app.route("/adm/aprovar/<int:id>")
+@requires_admin
+def adm_aprovar(id):
+    try:
+        with get_db() as conn:
+            tarefa = conn.execute("SELECT status FROM tarefas WHERE id = ?", (id,)).fetchone()
+            if not tarefa:
+                return "❌ Tarefa não encontrada", 404
+
+            if tarefa['status'] == "pendente_pagamento":
+                novo_status = "aberta"
+                conn.execute("UPDATE tarefas SET status = ? WHERE id = ?", (novo_status, id))
+                return f"✅ Pagamento aprovado! Tarefa agora está ABERTA para prestadores.", 200
+            else:
+                return f"ℹ️ Tarefa já está no status: {tarefa['status']}", 400
+    except Exception as e:
+        return f"❌ Erro: {str(e)}", 500
+
+# === REPROVAR TAREFA ===
 @app.route("/adm/reprovar/<int:id>")
 @requires_admin
 def adm_reprovar(id):
@@ -374,20 +505,25 @@ def adm_reprovar(id):
     except Exception as e:
         return f"❌ Erro: {str(e)}", 500
 
-
-# === APROVAR TAREFA ===
-@app.route("/adm/aprovar/<int:id>")
+# === LIBERAR PAGAMENTO AO PRESTADOR ===
+@app.route("/adm/liberar/<int:id>")
 @requires_admin
-def adm_aprovar(id):
+def adm_liberar_pagamento(id):
     try:
         with get_db() as conn:
-            tarefa = conn.execute("SELECT status FROM tarefas WHERE id = ?", (id,)).fetchone()
+            tarefa = conn.execute("SELECT id, preco, prestador_id FROM tarefas WHERE id = ? AND status = 'aguardando_aprovacao'", (id,)).fetchone()
             if not tarefa:
-                return "❌ Tarefa não encontrada", 404
+                return "❌ Tarefa não encontrada ou não está aguardando aprovação", 404
 
-            novo_status = "aberta" if tarefa['status'] == "pendente_pagamento" else "pendente_pagamento"
-            conn.execute("UPDATE tarefas SET status = ? WHERE id = ?", (novo_status, id))
-            return f"✅ Status alterado para: {novo_status}", 200
+            valor_liberar = tarefa['preco'] * 0.75
+
+            conn.execute('''INSERT INTO pagamentos (tarefa_id, valor, chave_pix, comprovante_url, status)
+                            VALUES (?, ?, ?, ?, 'liberado')''',
+                         (id, valor_liberar, "053984797344", f"liberacao-{id}-{datetime.now().strftime('%Y%m%d')}",))
+
+            conn.execute("UPDATE tarefas SET status = 'concluida' WHERE id = ?", (id,))
+
+        return "✅ Pagamento liberado ao prestador!", 200
     except Exception as e:
         return f"❌ Erro: {str(e)}", 500
 
@@ -442,19 +578,19 @@ def adm_dashboard():
         cursor = conn.cursor()
 
         if tab == "metricas":
-            # ✅ CORRIGIDO: JOIN com usuarios para pegar cidade/estado
             cursor.execute("""
                 SELECT t.*, u.cidade, u.estado
                 FROM tarefas t
-                JOIN usuarios u ON t.contratante_id = u.id
+                LEFT JOIN usuarios u ON t.contratante_id = u.id
             """)
             tarefas_db = cursor.fetchall()
+            tarefas_db = [dict(row) for row in tarefas_db]
 
             total = len(tarefas_db)
-            abertas = len([t for t in tarefas_db if t['status'] == 'aberta'])
-            pendentes = len([t for t in tarefas_db if t['status'] == 'pendente_pagamento'])
-            recusadas = len([t for t in tarefas_db if t['status'] == 'recusada'])
-            expiradas = len([t for t in tarefas_db if t['status'] == 'expirada'])
+            abertas = len([t for t in tarefas_db if t.get('status') == 'aberta'])
+            pendentes = len([t for t in tarefas_db if t.get('status') == 'pendente_pagamento'])
+            recusadas = len([t for t in tarefas_db if t.get('status') == 'recusada'])
+            expiradas = len([t for t in tarefas_db if t.get('status') == 'expirada'])
 
             por_cidade = {}
             por_estado = {}
@@ -478,10 +614,9 @@ def adm_dashboard():
             )
 
         else:
-            # === ABA: Aprovar Pagamentos ===
             cursor.execute("""
-                SELECT t.id, t.titulo, t.preco, t.status, t.contratante_id, t.criado_em,
-                       strftime('%%Y-%%m-%%d %%H:%%M', t.criado_em) as criado_em_str,
+                SELECT t.id, t.titulo, t.endereco, t.preco, t.status, t.contratante_id, t.criado_em,
+                       strftime('%Y-%m-%d %H:%M', t.criado_em) as criado_em_str,
                        u.nome as contratante_nome
                 FROM tarefas t
                 JOIN usuarios u ON t.contratante_id = u.id
@@ -499,7 +634,7 @@ def adm_dashboard():
                 usuarios_banidos=usuarios_banidos
             )
 
-# === ROTA: Trocar Senha do Admin ===
+# === TROCAR SENHA ADMIN ===
 @app.route("/adm/trocar_senha", methods=["GET", "POST"])
 @requires_admin
 def adm_trocar_senha():
@@ -517,8 +652,6 @@ def adm_trocar_senha():
 
         if len(nova_senha) < 6:
             return "❌ A nova senha deve ter pelo menos 6 caracteres.", 400
-
-        # Atualiza o hash global (em memória)
 
         ADMIN_PASSWORD_HASH = generate_password_hash(nova_senha)
 

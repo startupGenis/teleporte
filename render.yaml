@@ -13,6 +13,8 @@ services:
         generateValue: true
       - key: ADMIN_PASSWORD_HASH
         fromSecret: ADMIN_PASSWORD_HASH
+      - key: DATA_DIR
+        value: /app/data
     disk:
       name: data
-      mountPath: /app
+      mountPath: /app/data
