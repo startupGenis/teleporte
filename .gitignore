@@ -1,0 +1,29 @@
+# .gitignore
+
+# Banco de dados SQLite
+*.db
+*.sqlite3
+
+# Arquivos temporários
+*.tmp
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
