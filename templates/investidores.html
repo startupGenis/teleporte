@@ -1,264 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Investidores – TelePorte</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teleporte - Investidores</title>
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #0b0b0b;
-      --accent: #0B6E4F;
-      --muted: #666;
-      --maxw: 1024px;
-      --bg-secondary: #f8f9fa;
-      --primary: #0B6E4F;
-    }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    .container {
-      max-width: var(--maxw);
-      margin: 40px auto;
-      padding: 32px;
-      background: white;
-      box-shadow: 0 8px 30px rgba(6,12,20,0.08);
-      border-radius: 16px;
-    }
-
-    .title {
-      font-size: clamp(28px, 4.6vw, 44px);
-      line-height: 1.1;
-      font-weight: 800;
-      margin: 0 0 12px 0;
-      color: var(--text);
-    }
-
-    .subtitle {
-      font-size: clamp(16px, 2.4vw, 18px);
-      color: var(--muted);
-      margin: 0 0 24px 0;
-    }
-
-    .contact {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
-      margin: 18px 0 32px 0;
-    }
-
-    .contact a {
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .cta {
-      display: inline-block;
-      background: var(--accent);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: 700;
-      text-decoration: none;
-      margin-left: 8px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-      margin-top: 8px;
-    }
-
-    @media(min-width:880px) {
-      .grid {
-        grid-template-columns: 1fr 360px;
-      }
-    }
-
-    .card {
-      background: var(--bg-secondary);
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,0.04);
-    }
-
-    ul.advantages {
-      margin: 0;
-      padding-left: 20px;
-      color: var(--text);
-      font-weight: 600;
-      line-height: 1.6;
-      font-size: 16px;
-    }
-
-    .pitch {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-
-    .metric {
-      background: var(--bg-secondary);
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .metric h3 {
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .metric p {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 10px 0 0 0;
-    }
-
-    .benefits {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin: 20px 0;
-    }
-
-    .benefit {
-      flex: 1;
-      min-width: 250px;
-      background: var(--bg-secondary);
-      padding: 15px;
-      border-radius: 8px;
-    }
-
-    footer {
-      max-width: var(--maxw);
-      margin: 40px auto;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: center;
-      padding: 8px;
-    }
-
-    .small {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .english {
-      margin-top: 24px;
-      font-style: italic;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafc;
       color: #333;
-      font-size: 14px;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+      color: #fff;
+      text-align: center;
+      padding: 50px 20px 40px 20px;
+    }
+    header h1 {
+      font-size: 3em;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+    header p {
+      margin-top: 12px;
+      font-size: 1.2em;
+      color: #ddd;
+    }
+    section {
+      max-width: 1000px;
+      margin: auto;
+      padding: 35px 22px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    section h2 {
+      text-align: center;
+      margin-bottom: 18px;
+      font-size: 1.7em;
+      color: #111;
+    }
+    .highlight, .financial {
+      border-radius: 10px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    .highlight {
+      background: #eef4ff;
+      border-left: 6px solid #0056d6;
+    }
+    .financial {
+      background: #f0fff5;
+      border-left: 6px solid #28a745;
+      font-size: 1.05em;
+    }
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .columns div {
+      background: #fdfdfd;
+      padding: 18px;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      transition: 0.3s;
+    }
+    .columns div:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.07);
+    }
+    .share {
+      text-align: center;
+      margin: 30px 0 10px 0;
+    }
+    .share button {
+      background: linear-gradient(135deg, #007bff, #0056d6);
+      border: none;
+      color: white;
+      padding: 13px 22px;
+      margin: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .share button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #0056d6, #003c99);
+    }
+    footer {
+      background: #0d0d0d;
+      color: #bbb;
+      text-align: center;
+      padding: 25px 20px;
+      font-size: 15px;
+    }
+    footer a {
+      color: #00bfff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Ajustes para celulares */
+    @media (max-width: 600px) {
+      header h1 { font-size: 2.2em; }
+      header p { font-size: 1em; }
+      section { padding: 25px 18px; }
+      section h2 { font-size: 1.5em; }
+      body { font-size: 18px; }
+      .share button { font-size: 18px; padding: 16px 24px; }
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Teleporte</h1>
+    <p>O mundo em tempo real, na palma da sua mão</p>
+  </header>
 
-  <div class="container" role="main" aria-labelledby="main-title">
-    <h1 id="main-title" class="title">TelePorte — Seus olhos em qualquer lugar</h1>
-    <p class="subtitle">Plataforma que conecta contratantes e prestadores locais no mesmo dia. Tarefas podem ser executadas e comprovadas com fotos geotag, horários e pontos de venda, garantindo confiança mesmo à distância.</p>
-
-    <div class="contact">
-      <a href="mailto:g23info@gmail.com?subject=Startup">📧 g23info@gmail.com</a>
-      <div class="small">Contato direto: +55 53 98479-7344 — Genis (Autor)</div>
-      <a class="cta" href="mailto:g23info@gmail.com?subject=Startup">Falar com o autor</a>
+  <section>
+    <h2>🚀 Funcionalidades</h2>
+    <div class="columns">
+      <div>
+        <h3>Contratante</h3>
+        <p>Receba <strong>fotos e relatórios anônimos</strong> de qualquer lugar, em tempo real, a um custo mínimo!</p>
+        <p>Ganhe tempo, supervisione sem deslocamento e encurte distâncias.</p>
+      </div>
+      <div>
+        <h3>Freelancer</h3>
+        <p>Realize tarefas perto de você e <strong>ganhe dinheiro com seu celular</strong> tirando fotos e enviando relatórios rápidos.</p>
+      </div>
     </div>
+  </section>
 
-    <div class="grid">
-      <section class="card">
-        <h2 style="margin-top:0;">Pitch Rápido</h2>
-        <p class="pitch">
-          TelePorte permite que usuários publiquem tarefas locais — como registrar pontos de venda, tirar fotos de produtos, comprar itens específicos ou gerar provas de presença — em um mapa com marcador e círculo de abrangência. Prestadores próximos aceitam a tarefa e comprovam execução no mesmo dia com geotag e foto, permitindo ao contratante “ver” o local à distância. Contratante e prestador podem usar o mesmo app para contratar ou realizar tarefas.
-        </p>
-
-        <h3 style="margin-top:18px;">Potencial de clientes e usos</h3>
-        <ul class="advantages">
-          <li>Empresas que precisam de provas de campo sem deslocamento próprio.</li>
-          <li>Contratantes que querem registrar presença, verificar estoque ou pontos de venda em outras cidades.</li>
-          <li>Micro-tarefas urbanas imediatas: compras, fotos de produtos, checagem de serviços.</li>
-          <li>Usuários freelancers próximos que buscam rendimento extra com tarefas rápidas.</li>
-          <li>Mercado B2B e B2C com demandas temporárias, de monitoramento ou verificação.</li>
-        </ul>
-
-        <p class="english">
-          <strong>Quick pitch (English)</strong>: TelePorte lets users post local tasks — like verifying sales points, taking product photos, purchasing items, or generating proof of attendance — on a map with a coverage circle. Nearby providers accept tasks and validate execution the same day with geotagged photos, allowing the client to “see” the location remotely. Both clients and providers can use the same app for posting or performing tasks.
-        </p>
-      </section>
-
-      <aside class="card" aria-label="Vantagens para o investidor">
-        <h3 style="margin-top:0;">📊 Modelo de Negócio & Métricas</h3>
-
-        <div class="benefits">
-          <div class="metric">
-            <h3>Usuários (12m)</h3>
-            <p>500K</p>
-          </div>
-          <div class="metric">
-            <h3>Tarefas/mês</h3>
-            <p>2M</p>
-          </div>
-          <div class="metric">
-            <h3>Receita anual</h3>
-            <p>R$ 48M</p>
-          </div>
-        </div>
-
-        <h3>💡 Oportunidades de Mercado</h3>
-        <div class="benefits">
-          <div class="benefit">
-            <h4>🛒 Varejo</h4>
-            <p>Lojas verificam preços, estoque e promoções em tempo real.</p>
-          </div>
-          <div class="benefit">
-            <h4>📦 Logística</h4>
-            <p>Entregas, coletas e conferência de documentos.</p>
-          </div>
-          <div class="benefit">
-            <h4>🔍 Investigação</h4>
-            <p>Provas visuais para seguros, processos, seguidores.</p>
-          </div>
-        </div>
-
-        <h3>💰 Proposta de Valor para Investidor Anjo</h3>
-        <ul class="advantages" style="list-style-type:disc;">
-          <li><strong>Taxa de 25%</strong> sobre cada tarefa concluída</li>
-          <li><strong>Zero custo operacional</strong> (sem frota, sem equipe fixa)</li>
-          <li><strong>Escalonamento viral</strong> por rede de confiança geográfica</li>
-          <li><strong>Pagamento via Pix</strong> – instantâneo e sem taxas</li>
-          <li><strong>Participação nos lucros</strong> com potencial de expansão nacional e internacional</li>
-        </ul>
-
-        <h4 style="margin-top:18px;">📈 Pit Financeiro</h4>
-        <p class="small">
-          Investidor anjo pode financiar aquisição inicial e operações regionais em troca de % de participação sobre receita líquida nos primeiros 24 meses, com roadmap de expansão via parcerias e integração logística.
-        </p>
-
-        <div style="margin-top:16px;">
-          <a class="cta" href="mailto:g23info@gmail.com?subject=Startup">📥 Solicitar Deck de Investimento</a>
-        </div>
-      </aside>
+  <section>
+    <h2>🌍 Problema & Solução</h2>
+    <div class="highlight">
+      Grandes empresas, prefeituras, multinacionais e turistas precisam de informações locais <strong>em tempo real</strong>, mas hoje enfrentam altos custos, deslocamentos e atrasos.
     </div>
-  </div>
+    <p>O <strong>Teleporte</strong> resolve isso com uma rede descentralizada de freelancers que fornecem dados instantâneos e confiáveis de qualquer lugar do mundo.</p>
+  </section>
+
+  <section>
+    <h2>📊 Mercado Potencial</h2>
+    <ul>
+      <li>Varejo e trade marketing no Brasil movimentam <strong>R$ 50 bilhões/ano</strong>.</li>
+      <li>Turismo mundial: <strong>R$ 700 bilhões/ano</strong>.</li>
+      <li>Apps de microtarefas já faturam <strong>US$ 100M/ano</strong>, sem foco no Brasil.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>💰 Modelo de Negócio</h2>
+    <div class="highlight">
+      <p><strong>Contratante paga</strong> a partir de <strong>R$ 32</strong> por tarefa.</p>
+      <p><strong>Freelancer recebe</strong> 75% do valor.</p>
+      <p><strong>Teleporte retém</strong> 25% de taxa de intermediação.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>📈 Projeções Financeiras</h2>
+    <div class="financial">
+      <p><strong>Ano 1:</strong> 5.000 tarefas/mês × R$ 32 = R$ 160.000/mês → Receita anual: <strong>R$ 1,9M</strong></p>
+      <p><strong>Ano 2:</strong> 50.000 tarefas/mês × R$ 32 = R$ 1,6M/mês → Receita anual: <strong>R$ 19M</strong></p>
+      <p><strong>Ano 3:</strong> 200.000 tarefas/mês × R$ 35 = R$ 7M/mês → Receita anual: <strong>R$ 84M</strong></p>
+    </div>
+  </section>
+
+  <section class="share">
+    <h2>📲 Chamada de Investimento</h2>
+    <p><strong>Participe da revolução do Teleporte!</strong> Traga amigos investidores e compartilhe essa ideia disruptiva.</p>
+    <button id="shareWhatsapp">📩 Compartilhar no WhatsApp</button>
+    <button id="shareFacebook">📘 Compartilhar no Facebook</button>
+  </section>
 
   <footer>
-    <div>Direitos reservados — Autor: Genis Rech Lopes</div>
-    <div class="small">Agradecimento à IA Qwen pela ajuda no desenvolvimento inicial.</div>
+    <p>Desenvolvido por <strong>Genis R. L.</strong></p>
+    <p>Email: <a href="mailto:g23info@gmail.com">g23info@gmail.com</a> |
+       WhatsApp: <a href="https://wa.me/5553984797344" target="_blank">+55 53 98479-7344</a></p>
+    <p>&copy; 2025 Teleporte. Todos os direitos reservados.</p>
   </footer>
 
+  <script>
+    const pageUrl = "https://teleporte.onrender.com/investidores";
+    document.getElementById("shareWhatsapp").onclick = () => {
+      window.open(`https://wa.me/?text=Conheça%20o%20Teleporte!%20Uma%20plataforma%20disruptiva%20para%20supervisão%20em%20tempo%20real:%20${encodeURIComponent(pageUrl)}`, "_blank");
+    };
+    document.getElementById("shareFacebook").onclick = () => {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`, "_blank");
+    };
+  </script>
 </body>
 </html>
