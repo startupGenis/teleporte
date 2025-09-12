@@ -675,4 +675,5 @@ if __name__ == "__main__":
         print(f"✅ Banco {DATABASE} carregado com sucesso.")
 
     port = int(os.environ.get("PORT", 10000))
+
     app.run(host="0.0.0.0", port=port)
