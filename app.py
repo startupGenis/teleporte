@@ -19,7 +19,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "mudar_em_producao")
 app.permanent_session_lifetime = timedelta(minutes=30)
 
-DATABASE = 'teleporte.db'
+# Usa a variável de ambiente DATA_DIR definida no render.yaml
+DATA_DIR = os.getenv("DATA_DIR", "/app/data")
+DATABASE = os.path.join(DATA_DIR, "teleporte.db")
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
